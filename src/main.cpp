@@ -1,14 +1,4 @@
-#include <iostream>
-
-#include "opencv2/core.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/highgui.hpp"
-
-
-#define KERNEL_SIZE 3
-#define SCALE 1
-#define DELTA 0
+#include "../include/main.hpp"
 
 
 using namespace std;
@@ -28,6 +18,7 @@ int main(int argc, char *argv[])
     const String resultWindowName = "Stars";
     const String blurredWindowName = "Blurred stars";
     const String grayscaledWindowName = "Grayscaled stars";
+    const String boundedWindowName = "Bounded stars";
     const String temp1WindowName = "temp1 stars";
     const String temp2WindowName = "temp2 stars";
     const String temp3WindowName = "temp3 stars";
@@ -47,7 +38,7 @@ int main(int argc, char *argv[])
     srcImage = imread(imageName, IMREAD_COLOR);
     if(srcImage.empty())
     {
-        cout << "ouch" << endl;
+        cout << strerror(errno) << endl;
         return -1;
     }
 
@@ -74,17 +65,34 @@ int main(int argc, char *argv[])
     /*namedWindow(contoursWindowName, WINDOW_FREERATIO);
     imshow(contoursWindowName, contoursOut);
     waitKey();*/
-    vector <vector<Point>> vec_Contours_Polygon;
-    vector <Rect> boundingRect(contours.size());
+    vector <vector<Point>> vec_Contours_Polygon(contours.size());
+    vector <Rect> boundedRect(contours.size());
     vector <Point2f> center(contours.size());
     vector <float> radius(contours.size());
 
-    /*or (i = 0; i < contours.size(); i++)
+    for (i = 0; i < contours.size(); i++)
     {
-        cout << "hey" << endl;
+        //cout << Mat(contours[i]) << endl;
+        //cout << vec_Contours_Polygon[i] << endl;
+        //cout << "hohohohohoh" << endl;
         approxPolyDP(Mat(contours[i]), vec_Contours_Polygon[i], 3, true);
-        cout << "hohohohohoh" << endl;
-    }*/
+        boundedRect[i] = boundingRect(Mat(vec_Contours_Polygon[i]));
+        minEnclosingCircle((Mat) vec_Contours_Polygon[i], center[i], radius[i]);
+    }
+
+    Mat starContours = Mat::zeros(thresholdOut.size(), CV_8UC3);
+    RNG rng;
+    for (i = 0; i < contours.size(); i++)
+    {
+        Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+        drawContours(starContours, vec_Contours_Polygon, i, color, 1, 8, vector<Vec4i>(), 0, Point());
+        //rectangle(starContours, boundedRect[i].tl(), boundedRect[i].br(), color, 2, 8, 0);
+        circle(starContours, center[i], radius[i], color, 2, 8, 0);
+    }
+
+    namedWindow(boundedWindowName, WINDOW_FREERATIO);
+    imshow(boundedWindowName, starContours);
+    waitKey();
 
     ///
     Mat grad_x, grad_y;
