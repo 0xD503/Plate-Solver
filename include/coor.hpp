@@ -14,5 +14,11 @@ struct ReducedCartesianCoor    {
 };
 typedef ReducedCartesianCoor ReducedCartesianCoor;
 
+struct PolarCoor    {
+    double r;
+    double phi;
+};
+typedef PolarCoor PolarCoor;
+
 
 #endif // __COOR_HPP_INCLUDED__
