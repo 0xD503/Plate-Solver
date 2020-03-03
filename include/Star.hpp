@@ -12,7 +12,7 @@ class Star
     public:
         /** Default constructor */
         Star();
-        Star(CartesianCoor coor);
+        explicit Star(CartesianCoor coor);
         /** Default destructor */
         ~Star();
         /** Assignment operator
