@@ -24,4 +24,8 @@ struct PolarCoor    {
 typedef PolarCoor PolarCoor;
 
 
+ReducedCartesianCoor *calculateReducedCoor (CartesianCoor *coor, int width, int height);
+PolarCoor *calculatePolarCoor (ReducedCartesianCoor *reducedCoor);
+
+
 #endif // __COOR_HPP_INCLUDED__
