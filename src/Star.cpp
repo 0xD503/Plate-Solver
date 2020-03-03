@@ -3,32 +3,28 @@
 
 using namespace std;
 
+/// Objects counter initialization
 unsigned int Star::Counter {};
 
-Star::Star() : cartesCoor({0}), reducedCartesCoor({0}), polarCoor({0})
+/// Default constructor
+Star::Star() : cartesCoor({}), reducedCartesCoor({}), polarCoor({})
 {
-    this->Counter++;
+    Counter++;
 }
 
 /// Initialize using Cartesian coordinate
-Star::Star(CartesianCoor coor) : cartesCoor(coor)
+Star::Star(CartesianCoor coor) : cartesCoor(coor), reducedCartesCoor({}), polarCoor({})
 {
-    reducedCartesCoor = {};
-    polarCoor = {};
-    this->Counter++;
+    Counter++;
 }
 
-/*///
-Star::Star(uint16_t x, uint16_t y) : cartesCoor({x, y})
-{
-    this->Counter++;
-}*/
-
+/// Default destructor
 Star::~Star()
 {
     //dtor
 }
 
+/// Assignment operator
 Star& Star::operator=(const Star& rhs)
 {
     if (this == &rhs) return *this; // handle self assignment
