@@ -4,13 +4,16 @@
 #include <cstdint>
 
 
+//#define PI  3.1415
+
+
 struct CartesianCoor    {
-    uint16_t x, y;
+    unsigned int x, y;
 };
 typedef CartesianCoor CartesianCoor;
 
 struct ReducedCartesianCoor    {
-    uint16_t x_Reduced, y_Reduced;
+    int x_Reduced, y_Reduced;
 };
 typedef ReducedCartesianCoor ReducedCartesianCoor;
 
