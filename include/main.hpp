@@ -2,12 +2,21 @@
 #define MAIN_HPP_INCLUDED
 
 #include <iostream>
+#include <cstdint>
 #include <cerrno>
 
 #include "opencv2/core.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
+
+#include "coor.hpp"
+#include "Star.hpp"
+#include "Star_Detection.hpp"
+
+#ifdef __DEBUG
+#include "Unit_Tests.h"
+#endif  // __DEBUG
 
 
 #define KERNEL_SIZE 3
