@@ -15,7 +15,7 @@
 #include "Star_Detection.hpp"
 
 #ifdef __DEBUG
-#include "Unit_Tests.h"
+#include "Unit_Tests.hpp"
 #endif  // __DEBUG
 
 

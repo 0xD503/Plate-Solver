@@ -11,7 +11,8 @@ int main(int argc, char *argv[])
     testResult = testCoor(180, 140, 43, -4, 25.0, 300.0);
     if (testResult == 0)    cout << "Test finished with status \"SUCCESS\"" << endl;
 
-    system("PAUSE");
+    //system("WAIT");
+    //system("pause");
 /*
     size_t i;
 
