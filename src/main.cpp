@@ -6,6 +6,14 @@ using namespace cv;
 
 int main(int argc, char *argv[])
 {
+    int testResult;
+
+    testResult = testCoor(180, 140, 43, -4, 25.0, 300.0);
+    if (testResult == 0)    cout << "Test finished with status \"SUCCESS\"" << endl;
+
+    //system("WAIT");
+    //system("pause");
+/*
     size_t i;
 
     int kernelSize = KERNEL_SIZE;
@@ -33,6 +41,7 @@ int main(int argc, char *argv[])
     vector <vector<Point>> contours;
     vector <Vec4i> hierarchy;
     Mat thresholdOut, contoursOut;
+    Size matrixSize;
 
 
     srcImage = imread(imageName, IMREAD_COLOR);
@@ -42,16 +51,19 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    /// Get matrix size
+    matrixSize = srcImage.size();
+
     namedWindow(srcWindowName, WINDOW_FREERATIO);
     imshow(srcWindowName, srcImage);
     waitKey();
 
     GaussianBlur(srcImage, blurredImage, Size(3,3), 0, 0, BORDER_DEFAULT);
 
-    /*namedWindow(blurredWindowName, WINDOW_FREERATIO);
-    //namedWindow(blurredWindowName, WINDOW_AUTOSIZE);
-    imshow(blurredWindowName, blurredImage);
-    waitKey();*/
+//    namedWindow(blurredWindowName, WINDOW_FREERATIO);
+//    //namedWindow(blurredWindowName, WINDOW_AUTOSIZE);
+//    imshow(blurredWindowName, blurredImage);
+//    waitKey();
 
     cvtColor(blurredImage, grayscaledImage, COLOR_BGR2GRAY);
 
@@ -62,9 +74,9 @@ int main(int argc, char *argv[])
     namedWindow(thresholdWindowName, WINDOW_FREERATIO);
     imshow(thresholdWindowName, thresholdOut);
     waitKey();
-    /*namedWindow(contoursWindowName, WINDOW_FREERATIO);
-    imshow(contoursWindowName, contoursOut);
-    waitKey();*/
+//    namedWindow(contoursWindowName, WINDOW_FREERATIO);
+//    imshow(contoursWindowName, contoursOut);
+//    waitKey();
     vector <vector<Point>> vec_Contours_Polygon(contours.size());
     vector <Rect> boundedRect(contours.size());
     vector <Point2f> center(contours.size());
@@ -72,9 +84,6 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < contours.size(); i++)
     {
-        //cout << Mat(contours[i]) << endl;
-        //cout << vec_Contours_Polygon[i] << endl;
-        //cout << "hohohohohoh" << endl;
         approxPolyDP(Mat(contours[i]), vec_Contours_Polygon[i], 3, true);
         boundedRect[i] = boundingRect(Mat(vec_Contours_Polygon[i]));
         minEnclosingCircle((Mat) vec_Contours_Polygon[i], center[i], radius[i]);
@@ -112,32 +121,30 @@ int main(int argc, char *argv[])
     imshow(temp4WindowName, grad_y_abs);
     waitKey();
 
-    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 0, resultImage);
-    /*addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 10, resultImage1);
-    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 20, resultImage2);
-    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 100, resultImage3);*/
+//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 0, resultImage);
+//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 10, resultImage1);
+//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 20, resultImage2);
+//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 100, resultImage3);
 
     namedWindow(resultWindowName, WINDOW_FREERATIO);
     imshow(resultWindowName, resultImage);
     waitKey();
 
-    /*namedWindow(temp1WindowName, WINDOW_FREERATIO);
-    imshow(temp1WindowName, resultImage1);
-    waitKey();
+//    namedWindow(temp1WindowName, WINDOW_FREERATIO);
+//    imshow(temp1WindowName, resultImage1);
+//    waitKey();
+//
+//    namedWindow(temp2WindowName, WINDOW_FREERATIO);
+//    imshow(temp2WindowName, resultImage2);
+//    waitKey();
+//
+//    namedWindow(temp3WindowName, WINDOW_FREERATIO);
+//    imshow(temp3WindowName, resultImage3);
+//    waitKey();
 
-    namedWindow(temp2WindowName, WINDOW_FREERATIO);
-    imshow(temp2WindowName, resultImage2);
     waitKey();
-
-    namedWindow(temp3WindowName, WINDOW_FREERATIO);
-    imshow(temp3WindowName, resultImage3);
-    waitKey();*/
-
-    waitKey();
+*/
 
 
     return 0;
 }
-
-
-
