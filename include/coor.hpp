@@ -24,6 +24,9 @@ struct PolarCoor    {
 typedef PolarCoor PolarCoor;
 
 
+double radToDeg (double rad);
+double degToRad (double deg);
+
 ReducedCartesianCoor *calculateReducedCoor (CartesianCoor *coor, int width, int height);
 PolarCoor *calculatePolarCoor (ReducedCartesianCoor *reducedCoor);
 

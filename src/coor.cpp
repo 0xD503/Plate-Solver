@@ -1,5 +1,6 @@
 #include "../include/coor.hpp"
 #include <cmath>
+//#include <bits/stdc++.h>
 
 
 using namespace std;
@@ -31,7 +32,7 @@ PolarCoor *calculatePolarCoor (ReducedCartesianCoor *reducedCoor)
     double sum = (pow(static_cast<double>(reducedCoor->x_Reduced), 2.0) +
                   pow(static_cast<double>(reducedCoor->y_Reduced), 2.0));
     polarCoor->r = sqrt(sum);
-    polarCoor->phi = atan(static_cast<double>(reducedCoor->x_Reduced) / static_cast<double>(reducedCoor->y_Reduced));
+    polarCoor->phi = atan2(static_cast<double>(reducedCoor->y_Reduced), static_cast<double>(reducedCoor->x_Reduced));
 
     return (polarCoor);
 }
