@@ -30,5 +30,7 @@ double degToRad (double deg);
 ReducedCartesianCoor *calculateReducedCoor (CartesianCoor *coor, int width, int height);
 PolarCoor *calculatePolarCoor (ReducedCartesianCoor *reducedCoor);
 
+PolarCoor *calculateCoor (CartesianCoor *coor, int width, int height);
+
 
 #endif // __COOR_HPP_INCLUDED__

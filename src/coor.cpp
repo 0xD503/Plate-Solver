@@ -36,3 +36,9 @@ PolarCoor *calculatePolarCoor (ReducedCartesianCoor *reducedCoor)
 
     return (polarCoor);
 }
+
+
+PolarCoor *calculateCoor (CartesianCoor *coor, int width, int height)
+{
+    return (calculatePolarCoor(calculateReducedCoor(coor, width, height)));
+}
