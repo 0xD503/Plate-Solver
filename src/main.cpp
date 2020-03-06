@@ -6,6 +6,7 @@ using namespace cv;
 
 int main(int argc, char *argv[])
 {
+    #ifdef TESTING
     int testResult;
 
     testResult = testCoor(180, 140, 43, -4, 25.0, 300.0);
@@ -13,7 +14,8 @@ int main(int argc, char *argv[])
 
     //system("WAIT");
     //system("pause");
-/*
+    #endif // TESTING
+
     size_t i;
 
     int kernelSize = KERNEL_SIZE;
@@ -21,7 +23,8 @@ int main(int argc, char *argv[])
     int delta = DELTA;
     int dDepth = CV_16S;
     //const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/me.jpg";
-    const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/stars_1.jpg";
+    // const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/stars_1.jpg";
+    const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/ursa_minor.jpg";
     const String srcWindowName = "orig";
     const String resultWindowName = "Stars";
     const String blurredWindowName = "Blurred stars";
@@ -143,7 +146,6 @@ int main(int argc, char *argv[])
 //    waitKey();
 
     waitKey();
-*/
 
 
     return 0;
