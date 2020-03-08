@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
     int delta = DELTA;
     int dDepth = CV_16S;
     //const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/me.jpg";
-    // const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/stars_1.jpg";
-    const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/ursa_minor.jpg";
+    const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/stars_1.jpg";
+    //const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/ursa_minor.jpg";
     const String srcWindowName = "orig";
     const String resultWindowName = "Stars";
     const String blurredWindowName = "Blurred stars";
@@ -128,10 +128,10 @@ int main(int argc, char *argv[])
 //    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 10, resultImage1);
 //    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 20, resultImage2);
 //    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 100, resultImage3);
-
-    namedWindow(resultWindowName, WINDOW_FREERATIO);
-    imshow(resultWindowName, resultImage);
-    waitKey();
+//
+//    namedWindow(resultWindowName, WINDOW_FREERATIO);
+//    imshow(resultWindowName, resultImage);
+//    waitKey();
 
 //    namedWindow(temp1WindowName, WINDOW_FREERATIO);
 //    imshow(temp1WindowName, resultImage1);
