@@ -8,10 +8,10 @@ CXX = g++
 CXXFLAGS = -Wall -g -v
 
 ##  Define include dirs
-INCLUDES = -I ./include -I /usr/include/opencv4
+INCLUDES = -I ./include -I /usr/include/opencv4 -I /usr/local/include/opencv4
 
 ##  Define library paths, used for project
-LFLAGS = -L /usr/lib
+LFLAGS = -L /usr/local/lib
 
 ##  Define libraries used in project
 #LIBS = -l libopencv_core -l libopencv_imgcodecs -l libopencv_highgui -l libopencv_imgproc
