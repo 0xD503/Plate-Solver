@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     srcImage = imread(imageName, IMREAD_COLOR);
     if(srcImage.empty())
     {
-        cout << strerror(errno) << endl;
+        cout << "An error occured while open image file: " << strerror(errno) << endl;
         return -1;
     }
 
