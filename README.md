@@ -6,3 +6,8 @@ Plate (astronomic) solver for FGW
 
 # Dependencies:
 * OpenCV
+
+# Installation
+  Type in the command line:
+  <  chmod +x ./install.sh
+  <  ./install.sh
