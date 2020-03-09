@@ -22,9 +22,7 @@ int main(int argc, char *argv[])
     int scale = SCALE;
     int delta = DELTA;
     int dDepth = CV_16S;
-    //const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/me.jpg";
-    // const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/stars_1.jpg";
-    const String imageName = "/home/d_503/Programming/CodeBlocks/Plate_Solver/img/ursa_minor.jpg";
+    const string imageName = argv[1];
     const String srcWindowName = "orig";
     const String resultWindowName = "Stars";
     const String blurredWindowName = "Blurred stars";
