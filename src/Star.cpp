@@ -2,6 +2,7 @@
 
 
 using namespace std;
+using namespace coor;
 
 /// Objects counter initialization
 unsigned int Star::Counter {};
@@ -13,7 +14,7 @@ Star::Star() : /*cartesCoor({}), reducedCartesCoor({}), */polarCoor({})
 }
 
 /*/// Initialize using Cartesian coordinate
-Star::Star(CartesianCoor coor) : cartesCoor(coor), reducedCartesCoor({}), polarCoor({})
+Star::Star(CartCoor coor) : cartesCoor(coor), reducedCartesCoor({}), polarCoor({})
 {
     Counter++;
 }*/

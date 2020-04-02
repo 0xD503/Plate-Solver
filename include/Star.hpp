@@ -7,6 +7,8 @@
 #include "coor.hpp"
 
 
+using namespace coor;
+
 class Star
 {
     public:
@@ -28,19 +30,19 @@ class Star
         /** Access cartesCoor
          * \return The current value of cartesCoor
          */
-//        CartesianCoor GetcartesCoor (void) { return cartesCoor; }
+//        CartCoor GetcartesCoor (void) { return cartesCoor; }
 //        /** Set cartesCoor
 //         * \param val New value to set
 //         */
-//        void SetcartesCoor (CartesianCoor val) { cartesCoor = val; }
+//        void SetcartesCoor (CartCoor val) { cartesCoor = val; }
 //        /** Access reducedCartesCoor
 //         * \return The current value of reducedCartesCoor
 //         */
-//        ReducedCartesianCoor GetreducedCartesCoor (void) { return reducedCartesCoor; }
+//        ReducedCartCoor GetreducedCartesCoor (void) { return reducedCartesCoor; }
 //        /** Set reducedCartesCoor
 //         * \param val New value to set
 //         */
-//        void SetreducedCartesCoor (ReducedCartesianCoor val) { reducedCartesCoor = val; }
+//        void SetreducedCartesCoor (ReducedCartCoor val) { reducedCartesCoor = val; }
         /** Access polarCoor
          * \return The current value of polarCoor
          */
@@ -51,9 +53,9 @@ class Star
         void setPolarCoor (PolarCoor val) { polarCoor = val; }
 
 
-        /*ReducedCartesianCoor *calculate_ReducedCartCoor (CartesianCoor coor)
+        /*ReducedCartCoor *calculate_ReducedCartCoor (CartCoor coor)
         {
-            ReducedCartesianCoor *reducedCoor;
+            ReducedCartCoor *reducedCoor;
 
             //
         }*/
@@ -62,8 +64,8 @@ class Star
 
     private:
         static unsigned int Counter;                //!< Member variable "Counter"
-//        CartesianCoor cartesCoor;                   //!< Member variable "cartesCoor"
-//        ReducedCartesianCoor reducedCartesCoor;     //!< Member variable "reducedCartesCoor"
+//        CartCoor cartesCoor;                   //!< Member variable "cartesCoor"
+//        ReducedCartCoor reducedCartesCoor;     //!< Member variable "reducedCartesCoor"
         PolarCoor polarCoor;                        //!< Member variable "polarCoor"
 };
 

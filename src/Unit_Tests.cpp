@@ -1,11 +1,12 @@
 #include "../include/Unit_Tests.hpp"
 
 
-int testCoor (unsigned int x_1, unsigned int y_1, int xr_1, int yr_1,
+int testCoor (unsigned int x_1, unsigned int y_1,
+	      int xr_1, int yr_1,\
               double r_1, double phi_1)
 {
-    CartesianCoor           *cCoor_1 = new CartesianCoor;
-    ReducedCartesianCoor    *rcCoor_1 = new ReducedCartesianCoor, *result_1 = new ReducedCartesianCoor;
+    CartCoor           *cCoor_1 = new CartCoor;
+    ReducedCartCoor    *rcCoor_1 = new ReducedCartCoor, *result_1 = new ReducedCartCoor;
     PolarCoor               *pCoor_1 = new PolarCoor, *result_2 = new PolarCoor;
 
     *cCoor_1 = {x_1, y_1};

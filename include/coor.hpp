@@ -6,16 +6,17 @@
 
 //#define PI  3.1415
 
+namespace coor  {
 
-struct CartesianCoor    {
+struct CartCoor    {
     unsigned int x, y;
 };
-typedef CartesianCoor CartesianCoor;
+typedef CartCoor CartCoor;
 
-struct ReducedCartesianCoor    {
+struct ReducedCartCoor    {
     int x_Reduced, y_Reduced;
 };
-typedef ReducedCartesianCoor ReducedCartesianCoor;
+typedef ReducedCartCoor ReducedCartCoor;
 
 struct PolarCoor    {
     double r;
@@ -27,10 +28,14 @@ typedef PolarCoor PolarCoor;
 double radToDeg (double rad);
 double degToRad (double deg);
 
-ReducedCartesianCoor *calculateReducedCoor (CartesianCoor *coor, int width, int height);
-PolarCoor *calculatePolarCoor (ReducedCartesianCoor *reducedCoor);
+ReducedCartCoor *calculateReducedCoor (CartCoor *coor,\
+					    int width, int height);
+PolarCoor *calculatePolarCoor (ReducedCartCoor *reducedCoor);
 
-PolarCoor *calculateCoor (CartesianCoor *coor, int width, int height);
+PolarCoor *calculateCoor (CartCoor *coor, int width,\
+			  int height);
+
+}
 
 
 #endif // __COOR_HPP_INCLUDED__
