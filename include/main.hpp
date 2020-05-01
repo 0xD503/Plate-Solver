@@ -19,6 +19,9 @@
 #endif  // __DEBUG
 
 
+/// General defines
+#define ESCAPE_KEY 0x1B
+
 #define KERNEL_SIZE 3
 #define SCALE 1
 #define DELTA 0

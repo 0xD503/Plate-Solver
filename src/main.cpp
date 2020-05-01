@@ -36,14 +36,6 @@ int main(int argc, char *argv[])
     cv::Mat resultImage, resultImage1, resultImage2, resultImage3;
     cv::Mat grad;
 
-    double thresh = 100, maxThreshold = 255;
-    const std::string thresholdWindowName = "Threshold";
-    const std::string contoursWindowName = "Contours";
-    std::vector <std::vector<cv::Point>> contours;
-    std::vector <cv::Vec4i> hierarchy;
-    cv::Mat thresholdOut, contoursOut;
-    cv::Size matrixSize;
-
 
     /// Read image file
     srcImage = cv::imread(imageName, cv::IMREAD_COLOR);
@@ -61,17 +53,8 @@ int main(int argc, char *argv[])
     cv::imshow(srcWindowName, srcImage);
     cv::waitKey();
 
-    /// Blur image to decrease noise
-    cv::GaussianBlur(srcImage, blurredImage, cv::Size(3,3),\
-		     0, 0, cv::BORDER_DEFAULT);
-
-//    namedWindow(blurredWindowName, WINDOW_FREERATIO);
-//    //namedWindow(blurredWindowName, WINDOW_AUTOSIZE);
-//    imshow(blurredWindowName, blurredImage);
-//    waitKey();
-
     /// Convert image to grayscaled color
-    cv::cvtColor(blurredImage, grayscaledImage,\
+    cv::cvtColor(srcImage, grayscaledImage,\
 		 cv::COLOR_BGR2GRAY);
 
 //    namedWindow(grayscaledWindowName, WINDOW_FREERATIO);
@@ -79,94 +62,223 @@ int main(int argc, char *argv[])
 //    imshow(blurredWindowName, blurredImage);
 //    waitKey();
 
-    /// Treshold function transforms image to bi-color image
+    /// Blur image to decrease noise
+    cv::GaussianBlur(grayscaledImage, blurredImage, cv::Size(3,3),\
+		     0, 0, cv::BORDER_DEFAULT);
+
+//    namedWindow(blurredWindowName, WINDOW_FREERATIO);
+//    //namedWindow(blurredWindowName, WINDOW_AUTOSIZE);
+//    imshow(blurredWindowName, blurredImage);
+//    waitKey();
+
+
+    /// Apply Sobel operator to gray-scaled image
+    cv::Mat sobelResult;
+    cv::Mat grad_x, grad_y;
+    cv::Mat grad_x_abs, grad_y_abs;
+
+    /// Find horizontal gradient
+    cv::Sobel(blurredImage, grad_x, dDepth, 1, 0, kernelSize,	\
+	  scale, delta, cv::BORDER_DEFAULT);
+    /// Find vertical gradient
+    cv::Sobel(blurredImage, grad_y, dDepth, 0, 1, kernelSize,	\
+	  scale, delta, cv::BORDER_DEFAULT);
+
+    cv::convertScaleAbs(grad_x, grad_x_abs);
+    cv::convertScaleAbs(grad_y, grad_y_abs);
+
+    cv::addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 0,	\
+		sobelResult);
+/*    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 10,	\
+		resultImage1);
+//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 20,	\
+		resultImage2);
+//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 100,	\
+		resultImage3);*/
+
+    cv::namedWindow("Sobel", cv::WINDOW_FREERATIO);
+    cv::imshow("Sobel", sobelResult);
+    cv::waitKey();
+
+
+    /// Apply Laplace operator
+    cv::Mat laplaceResult, laplaceResult_abs;
+
+    cv::Laplacian(blurredImage, laplaceResult, dDepth, kernelSize, scale, delta, cv::BORDER_DEFAULT);
+    cv::convertScaleAbs(laplaceResult, laplaceResult_abs, 1, 0);
+
+    cv::namedWindow("Laplacian", cv::WINDOW_FREERATIO);
+    cv::imshow("Laplacian", laplaceResult_abs);
+    cv::waitKey();
+
+
+    /// Apply Canny edge detector
+    cv::Mat cannyResult;
+
+    cv::Canny(blurredImage, cannyResult, 100, 240, kernelSize);
+
+    cv::namedWindow("Canny", cv::WINDOW_FREERATIO);
+    cv::imshow("Canny", cannyResult);
+    cv::waitKey();
+
+
+    /// Drawing contours
+    double thresh = 100, maxThreshold = 255;
+    const std::string thresholdWindowName = "Threshold";
+    const std::string contoursWindowName = "Threshold contours";
+    cv::Mat thresholdOut;
+    cv::Mat thresholdSobelOut;
+    cv::Mat thresholdLaplaceOut;
+    cv::Mat thresholdCannyOut;
+    cv::Size matrixSize;
+    std::vector <std::vector<cv::Point>> contours, sobelContours, laplaceContours, cannyContours;
+    std::vector <cv::Vec4i> hierarchy, hierarchySobel, hierarchyLaplace, hierarchyCanny;
+    //std::vector <cv::Rect> boundedRect(contours.size());
+    //std::vector <cv::Point2f> center(contours.size());
+    //std::vector <float> radius(contours.size());
+
+    /// Threshold function transforms image to bi-color image
     /// (only white and black, without shades). It helps us to
     /// determine the clear-cut bounds of the objects on image
-    cv::threshold(grayscaledImage, thresholdOut, thresh,\
-	      maxThreshold, cv::THRESH_BINARY);
-    cv::findContours(thresholdOut, contours, hierarchy,
-		     cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,
+    cv::threshold(blurredImage, thresholdOut, thresh, maxThreshold,\
+                  cv::THRESH_BINARY);
+    cv::findContours(thresholdOut, contours, hierarchy,\
+		     cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
 		     cv::Point(0, 0));
 
     cv::namedWindow(thresholdWindowName, cv::WINDOW_FREERATIO);
     cv::imshow(thresholdWindowName, thresholdOut);
     cv::waitKey();
-//    namedWindow(contoursWindowName, WINDOW_FREERATIO);
-//    imshow(contoursWindowName, contoursOut);
-//    waitKey();
-    std::vector <std::vector<cv::Point>> ContPolygon_vec(contours.size());
-    std::vector <cv::Rect> boundedRect(contours.size());
-    std::vector <cv::Point2f> center(contours.size());
-    std::vector <float> radius(contours.size());
 
+    std::vector <std::vector <cv::Point>> ContPolygon_vec(contours.size());
+
+    /// Approximate contours
     for (i = 0; i < contours.size(); i++)
     {
-      cv::approxPolyDP(cv::Mat(contours[i]),\
-		       ContPolygon_vec[i], 3, true);
-      boundedRect[i] = cv::boundingRect(cv::Mat(ContPolygon_vec[i]));
-      cv::minEnclosingCircle((cv::Mat) ContPolygon_vec[i],\
+      cv::approxPolyDP(cv::Mat(contours[i]), ContPolygon_vec[i], 3, true);
+      //boundedRect[i] = cv::boundingRect(cv::Mat(ContPolygon_vec[i]));
+      //cv::minEnclosingCircle((cv::Mat) ContPolygon_vec[i],\
 			     center[i], radius[i]);
     }
 
-    cv::Mat starContours = cv::Mat::zeros(thresholdOut.size(),	\
-					  CV_8UC3);
+    /// Draw star contours
+    cv::Mat starContours = cv::Mat::zeros(thresholdOut.size(), CV_8UC3);
     cv::RNG rng;
     for (i = 0; i < contours.size(); i++)
     {
         cv::Scalar color = cv::Scalar(rng.uniform(0, 255),\
-	 		              rng.uniform(0, 255),\
-				      rng.uniform(0, 255));
+                                      rng.uniform(0, 255),\
+				                      rng.uniform(0, 255));
         cv::drawContours(starContours, ContPolygon_vec, i,\
-			 color, 1, 8, std::vector<cv::Vec4i>(),\
-			 0, cv::Point());
-        //rectangle(starContours, boundedRect[i].tl(),	\
+			             color, 1, cv::LINE_8, std::vector<cv::Vec4i>(),\
+			             0, cv::Point());
+        ///rectangle(starContours, boundedRect[i].tl(),	\
 		  boundedRect[i].br(), color,\
 		  2, 8, 0);
-        cv::circle(starContours, center[i], radius[i], color,\
+        //cv::circle(starContours, center[i], radius[i], color,\
 		   2, 8, 0);
     }
-
     cv::namedWindow(boundedWindowName, cv::WINDOW_FREERATIO);
     cv::imshow(boundedWindowName, starContours);
     cv::waitKey();
 
+    /// Draw for Sobel image
+    cv::threshold(sobelResult, thresholdSobelOut, thresh, maxThreshold,\
+                  cv::THRESH_BINARY);
+    cv::findContours(thresholdSobelOut, sobelContours, hierarchySobel,\
+                     cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
+                     cv::Point(0, 0));
 
-    ///
-//  Mat grad_x, grad_y;
+    std::vector <std::vector <cv::Point>> approxCont_Sobel(sobelContours.size());
+    //cv::Mat contoursSobelImage = cv::Mat::zeros(thresholdSobelOut.size(), CV_8UC3);
+    cv::Mat contoursSobelImage = srcImage;
+    for (i = 0; i < sobelContours.size(); i++)
+    {
+        cv::approxPolyDP(cv::Mat(sobelContours[i]), approxCont_Sobel[i], 3, true);
+    }
+    for (i = 0; i < sobelContours.size(); i++)
+    {
+        cv::Scalar color = cv::Scalar(rng.uniform(0, 255),\
+                                      rng.uniform(0, 255),\
+                                      rng.uniform(0, 255));
+        cv::drawContours(contoursSobelImage, approxCont_Sobel, i,\
+                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),\
+                         0, cv::Point());
+    }
+    /// Show image
+    cv::namedWindow("Sobel bounded", cv::WINDOW_FREERATIO);
+    cv::imshow("Sobel bounded", contoursSobelImage);
+    cv::waitKey();
 
-//    Sobel(grayscaledImage, grad_x, dDepth, 1, 0, kernelSize,	\
-	  scale, delta, BORDER_DEFAULT);
-//    Sobel(grayscaledImage, grad_y, dDepth, 0, 1, kernelSize,	\
-	  scale, delta, BORDER_DEFAULT);
 
-//    Mat grad_x_abs, grad_y_abs;
+    /// Draw Laplace boundaries
+    cv::threshold(laplaceResult_abs, thresholdLaplaceOut, thresh, maxThreshold,\
+                  cv::THRESH_BINARY);
+    cv::findContours(thresholdLaplaceOut, laplaceContours, hierarchyLaplace,\
+                     cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
+                     cv::Point());
 
-//    convertScaleAbs(grad_x, grad_x_abs);
-//    convertScaleAbs(grad_y, grad_y_abs);
+    std::vector <std::vector <cv::Point>> approxCont_Laplace(laplaceContours.size());
+    //cv::Mat contoursLaplaceImage = cv::Mat::zeros(thresholdLaplaceOut.size(), CV_8UC3);
+    cv::Mat contoursLaplaceImage = srcImage;
+    for (i = 0; i < laplaceContours.size(); i++)
+    {
+        cv::approxPolyDP(cv::Mat(laplaceContours[i]), approxCont_Laplace[i], 3, true);
+    }
+    for (i = 0; i < laplaceContours.size(); i++)
+    {
+        cv::Scalar color = cv::Scalar(rng.uniform(0, 255),
+                                      rng.uniform(0, 255),
+                                      rng.uniform(0, 255));
+        cv::drawContours(contoursLaplaceImage, approxCont_Laplace, i,\
+                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
+                         0, cv::Point());
+    }
+    /// Show image
+    cv::namedWindow("Laplace boundaries", cv::WINDOW_FREERATIO);
+    cv::imshow("Laplace boundaries", contoursLaplaceImage);
+    cv::waitKey();
 
-//    namedWindow(temp3WindowName, WINDOW_FREERATIO);
-//    imshow(temp3WindowName, grad_x_abs);
-//    waitKey();
+
+    /// Draw Canny boundaries
+    cv::threshold(cannyResult, thresholdCannyOut, thresh, maxThreshold,\
+                  cv::THRESH_BINARY);
+    cv::findContours(thresholdCannyOut, cannyContours, hierarchyCanny,\
+                     cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
+                     cv::Point());
+
+    std::vector <std::vector <cv::Point>> approxCont_Canny(cannyContours.size());
+    //cv::Mat contoursCannyImage = cv::Mat::zeros(thresholdCannyOut.size(), CV_8UC3);
+    cv::Mat contoursCannyImage = srcImage;
+    for (i = 0; i < cannyContours.size(); i++)
+    {
+        cv::approxPolyDP(cv::Mat(cannyContours[i]), approxCont_Canny[i], 3, true);
+    }
+    for (i = 0; i < cannyContours.size(); i++)
+    {
+        cv::Scalar color = cv::Scalar(rng.uniform(0, 255),
+                                      rng.uniform(0, 255),
+                                      rng.uniform(0, 255));
+        cv::drawContours(contoursCannyImage, approxCont_Canny, i,\
+                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
+                         0, cv::Point());
+    }
+    /// Show image
+    cv::namedWindow("Canny boundaries", cv::WINDOW_FREERATIO);
+    cv::imshow("Canny boundaries", contoursCannyImage);
+    cv::waitKey();
+
+    /// Wait for ESC key
+    while ((cv::waitKey() & 0xFF) != ESCAPE_KEY);
+
+
+    return (0);
+}
+
+/*
+
 //    namedWindow(temp4WindowName, WINDOW_FREERATIO);
 //    imshow(temp4WindowName, grad_y_abs);
-//    waitKey();
-
-
-//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 0,	\
-		resultImage);
-//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 10,	\
-		resultImage1);
-//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 20,	\
-		resultImage2);
-//    addWeighted(grad_x_abs, 0.5, grad_y_abs, 0.5, 100,	\
-		resultImage3);
-
-//    namedWindow(resultWindowName, WINDOW_FREERATIO);
-//    imshow(resultWindowName, resultImage);
-//    waitKey();
-
-//    namedWindow(temp1WindowName, WINDOW_FREERATIO);
-//    imshow(temp1WindowName, resultImage1);
 //    waitKey();
 //
 //    namedWindow(temp2WindowName, WINDOW_FREERATIO);
@@ -177,8 +289,7 @@ int main(int argc, char *argv[])
 //    imshow(temp3WindowName, resultImage3);
 //    waitKey();
 
-    cv::waitKey();
-
-
-    return (0);
-}
+//    namedWindow(contoursWindowName, WINDOW_FREERATIO);
+//    imshow(contoursWindowName, contoursOut);
+//    waitKey();
+*/
