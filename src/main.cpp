@@ -17,6 +17,8 @@ int main(int argc, char *argv[])
     #endif // TESTING
 
     size_t i;
+    time_t timer;
+    double diffTime;
 
     int kernelSize = KERNEL_SIZE;
     int scale = SCALE;
@@ -89,6 +91,10 @@ int main(int argc, char *argv[])
     /// Threshold function transforms image to bi-color image
     /// (only white and black, without shades). It helps us to
     /// determine the clear-cut bounds of the objects on image
+    ///
+    /// Start timer
+    timer = time(nullptr);
+
     cv::threshold(blurredImage, thresholdOut, thresh, maxThreshold,\
                   cv::THRESH_BINARY);
     cv::findContours(thresholdOut, contours, hierarchy,\
@@ -122,6 +128,11 @@ int main(int argc, char *argv[])
         //cv::circle(starContours, center[i], radius[i], color,\
 		   2, 8, 0);*/
     }
+
+    diffTime = difftime(timer, time(nullptr));
+    std::cout << "Threshold: overall time - " << diffTime << " seconds" << std::endl;
+
+    /// Show images
     cv::namedWindow(thresholdWindowName, cv::WINDOW_FREERATIO);
     cv::imshow(thresholdWindowName, thresholdOut);
     cv::namedWindow(boundedWindowName, cv::WINDOW_FREERATIO);
@@ -135,6 +146,8 @@ int main(int argc, char *argv[])
     cv::Mat grad_x_abs, grad_y_abs;
 
     /// Find horizontal gradient
+    timer = time(nullptr);
+
     cv::Sobel(blurredImage, grad_x, dDepth, 1, 0, kernelSize,	\
 	  scale, delta, cv::BORDER_DEFAULT);
     /// Find vertical gradient
@@ -179,6 +192,10 @@ int main(int argc, char *argv[])
                          color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),\
                          0, cv::Point());
     }
+
+    diffTime = difftime(timer, time(nullptr));
+    std::cout << "Sobel operator: overall time - " << diffTime << " seconds" << std::endl;
+
     /// Show image
     cv::namedWindow("Sobel", cv::WINDOW_FREERATIO);
     cv::imshow("Sobel", sobelResult);
@@ -191,6 +208,8 @@ int main(int argc, char *argv[])
 
     /// Apply Laplace operator
     cv::Mat laplaceResult, laplaceResult_abs;
+
+    timer = time(nullptr);
 
     cv::Laplacian(blurredImage, laplaceResult, dDepth, kernelSize, scale, delta, cv::BORDER_DEFAULT);
     cv::convertScaleAbs(laplaceResult, laplaceResult_abs, 1, 0);
@@ -221,6 +240,10 @@ int main(int argc, char *argv[])
                          color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
                          0, cv::Point());
     }
+
+    diffTime = difftime(timer, time(nullptr));
+    std::cout << "Laplace operator: overall time - " << diffTime << " seconds" << std::endl;
+
     /// Show image
     cv::namedWindow("Laplacian", cv::WINDOW_FREERATIO);
     cv::imshow("Laplacian", laplaceResult_abs);
@@ -234,6 +257,7 @@ int main(int argc, char *argv[])
     /// Apply Canny edge detector
     cv::Mat cannyResult;
 
+    timer = time(nullptr);
     cv::Canny(blurredImage, cannyResult, 120, 240, kernelSize);
 
     /// Draw Canny boundaries
@@ -262,6 +286,10 @@ int main(int argc, char *argv[])
                          color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
                          0, cv::Point());
     }
+
+    diffTime = difftime(timer, time(nullptr));
+    std::cout << "Canny edge detector: overall time - " << diffTime << " seconds" << std::endl;
+
     /// Show images
     cv::namedWindow("Canny", cv::WINDOW_FREERATIO);
     cv::imshow("Canny", cannyResult);

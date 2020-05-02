@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstdint>
+#include <ctime>
 #include <cerrno>
 
 #include "opencv2/core.hpp"
