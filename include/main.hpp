@@ -20,7 +20,8 @@
 
 
 /// General defines
-#define ESCAPE_KEY 0x1B
+#define ASCII_ESCAPE_KEY 0x1B
+#define ASCII_SPACE_KEY 0x20
 
 #define KERNEL_SIZE 3
 #define SCALE 1
