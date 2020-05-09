@@ -292,6 +292,7 @@ int main(int argc, char *argv[])
     cv::Mat contoursCannyImage_zeroed = cv::Mat::zeros(thresholdCannyOut.size(), CV_8UC3);
     //cv::Mat contoursCannyImage = grayscaledImage;
 
+    coor_output.open(coor_output_fn, ios::out | ios::trunc);
     for (i = 0; i < contoursNum; i++)
     {
         cv::Scalar color = cv::Scalar(rng.uniform(0, 255),
@@ -306,7 +307,10 @@ int main(int argc, char *argv[])
         cv::minEnclosingCircle((cv::Mat) approxCont_Canny[i], cannyCenter[i], cannyRadius[i]);
         cv::circle(contoursCannyImage_zeroed, cannyCenter[i], cannyRadius[i], color,
                    2, cv::LINE_8, 0);
+        /// Write coors in file
+        coor_output << cannyCenter[i] << endl;
     }
+    coor_output.close();
 
 #ifdef TIME_TEST
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &endTime);
