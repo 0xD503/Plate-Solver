@@ -1,143 +1,146 @@
 #include "../include/main.hpp"
 
 
+//#define TESTING
+//#define TIME_TEST
+
+
+void greeting (void);
+
+
+using namespace std;
+
 int main(int argc, char *argv[])
 {
+    greeting();
     #ifdef TESTING
     int testResult;
 
     testResult = testCoor(180, 140, 43, -4, 25.0, 300.0);
-    if (testResult == 0)  std::cout << "Test finished with\
+    if (testResult == 0)  cout << "Test finished with\
                                        status: "
-				    << testResult << std::endl;
+				    << testResult << endl;
 
     return (testResult);
-    //system("WAIT");
-    //system("pause");
     #endif // TESTING
 
     size_t i;
-    time_t timer;
-    double diffTime;
 
     int kernelSize = KERNEL_SIZE;
     int scale = SCALE;
     int delta = DELTA;
     int dDepth = CV_16S;
-    const std::string imageName = argv[1];
-    const std::string srcWindowName = "orig";
-    const std::string resultWindowName = "Stars";
-    const std::string blurredWindowName = "Blurred_stars";
-    const std::string grayscaledWindowName = "Grayscaled_stars";
-    const std::string boundedWindowName = "Bounded_stars";
-    const std::string temp1WindowName = "temp1_stars";
-    const std::string temp2WindowName = "temp2_stars";
-    const std::string temp3WindowName = "temp3_stars";
-    const std::string temp4WindowName = "temp4_stars";
+    const string imageName = argv[1];
+    const string srcWindowName = "orig";
+    const string resultWindowName = "Stars";
+    const string blurredWindowName = "Blurred_stars";
+    const string grayscaledWindowName = "Grayscaled_stars";
+    const string boundedWindowName = "Bounded_stars";
+    const string temp1WindowName = "temp1_stars";
+    const string temp2WindowName = "temp2_stars";
     cv::Mat srcImage, blurredImage, grayscaledImage;
     cv::Mat resultImage, resultImage1, resultImage2, resultImage3;
     cv::Mat grad;
 
-        /// Drawing vars
+    /// Drawing vars
     double thresh = 100, maxThreshold = 255;
-    const std::string thresholdWindowName = "Threshold";
-    const std::string contoursWindowName = "Threshold_contours";
+    const string thresholdWindowName = "Threshold";
+    const string thresholdContours = "Threshold_contours";
     cv::Mat thresholdOut;
     cv::Mat thresholdSobelOut;
     cv::Mat thresholdLaplaceOut;
     cv::Mat thresholdCannyOut;
     cv::Size matrixSize;
-    std::vector <std::vector<cv::Point>> contours, sobelContours, laplaceContours, cannyContours;
-    std::vector <cv::Vec4i> hierarchy, hierarchySobel, hierarchyLaplace, hierarchyCanny;
-    //std::vector <cv::Rect> boundedRect(contours.size());
-    //std::vector <cv::Point2f> center(contours.size());
-    //std::vector <float> radius(contours.size());
+    vector <vector<cv::Point>> contours, sobelContours, laplaceContours, cannyContours;
+    vector <cv::Vec4i> hierarchy, hierarchySobel, hierarchyLaplace, hierarchyCanny;
 
+    /// Output files
+    string coor_output_fn = std::string(argv[2]) + "/coor.csv";
+    ofstream coor_output;
 
     /// Read image file
     srcImage = cv::imread(imageName, cv::IMREAD_COLOR);
     if(srcImage.empty())
     {
-        std::cout << "An error occured while open image file: "\
-	          << strerror(errno) << std::endl;
+        cout << "An error occurred while open image file: "\
+	          << strerror(errno) << endl;
         return (-1);
     }
 
-    ///// Get matrix size
-    //matrixSize = srcImage.size();
-
-    cv::namedWindow(srcWindowName, cv::WINDOW_FREERATIO);
-    cv::imshow(srcWindowName, srcImage);
-    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
-
-    /// Convert image to grayscaled color
+    /// Convert image to gray scaled color
     cv::cvtColor(srcImage, grayscaledImage,\
-		 cv::COLOR_BGR2GRAY);
-
-//    namedWindow(grayscaledWindowName, WINDOW_FREERATIO);
-//    //namedWindow(blurredWindowName, WINDOW_AUTOSIZE);
-//    imshow(blurredWindowName, blurredImage);
-//    waitKey();
+		         cv::COLOR_BGR2GRAY);
 
     /// Blur image to decrease noise
     cv::GaussianBlur(grayscaledImage, blurredImage, cv::Size(3,3),\
 		     0, 0, cv::BORDER_DEFAULT);
 
-//    namedWindow(blurredWindowName, WINDOW_FREERATIO);
-//    //namedWindow(blurredWindowName, WINDOW_AUTOSIZE);
-//    imshow(blurredWindowName, blurredImage);
-//    waitKey();
+
 
     /// Threshold function transforms image to bi-color image
     /// (only white and black, without shades). It helps us to
     /// determine the clear-cut bounds of the objects on image
-    ///
-    /// Start timer
-    timer = time(nullptr);
 
+#ifdef TIME_TEST
+    unsigned int j, cyclesNum = 50;
+    double elapsedtime;
+    timespec startTime, endTime;
+    string time_output_fn = std::string(argv[2]) + "/time.csv";
+    ofstream time_output;
+
+    time_output.open(time_output_fn, ios::out | ios::trunc);
+    time_output << "Threshold,Sobel,Laplace,Canny" << endl;
+#endif // TIME_TEST
+    size_t contoursNum;
+    cv::RNG rng;
+
+#ifdef TIME_TEST
+    for (j = 0; j < cyclesNum; j++)
+    {
+        /// Start timer
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &startTime);
+#endif // TIME_TEST
     cv::threshold(blurredImage, thresholdOut, thresh, maxThreshold,\
                   cv::THRESH_BINARY);
     cv::findContours(thresholdOut, contours, hierarchy,\
 		     cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
 		     cv::Point(0, 0));
 
-    std::vector <std::vector <cv::Point>> approxCont_Raw(contours.size());
-    /// Approximate contours
-    for (i = 0; i < contours.size(); i++)
-    {
-      cv::approxPolyDP(cv::Mat(contours[i]), approxCont_Raw[i], 3, true);
-      /*//boundedRect[i] = cv::boundingRect(cv::Mat(ContPolygon_vec[i]));
-      //cv::minEnclosingCircle((cv::Mat) ContPolygon_vec[i],\
-			     center[i], radius[i]);*/
-    }
+    contoursNum = contours.size();
+    vector <vector <cv::Point>> approxCont_Raw(contoursNum);
+    vector <cv::Point2f> center(contoursNum);
+    vector <float> radius(contoursNum);
 
-    /// Draw star contours
-    cv::Mat starContours = cv::Mat::zeros(thresholdOut.size(), CV_8UC3);
-    cv::RNG rng;
-    for (i = 0; i < contours.size(); i++)
+    cv::Mat thresholdContours_zeroed = cv::Mat::zeros(thresholdOut.size(), CV_8UC3);
+    for (i = 0; i < contoursNum; i++)
     {
         cv::Scalar color = cv::Scalar(rng.uniform(0, 255),\
                                       rng.uniform(0, 255),\
 				                      rng.uniform(0, 255));
-        cv::drawContours(starContours, approxCont_Raw, i,\
-			             color, 1, cv::LINE_8, std::vector<cv::Vec4i>(),\
-			             0, cv::Point());
-        /*//rectangle(starContours, boundedRect[i].tl(),	\
-		  boundedRect[i].br(), color,\
-		  2, 8, 0);
-        //cv::circle(starContours, center[i], radius[i], color,\
-		   2, 8, 0);*/
+
+        /// Approximate contours
+        cv::approxPolyDP(cv::Mat(contours[i]), approxCont_Raw[i], 3, true);
+        /*/// Draw star contours
+        cv::drawContours(thresholdContours_zeroed, approxCont_Raw, i,\
+			             color, 1, cv::LINE_8, vector<cv::Vec4i>(),\
+			             0, cv::Point());*/
+
+        /// Find minimal enclosing circles for approximated contours
+        cv::minEnclosingCircle((cv::Mat) approxCont_Raw[i],\
+			     center[i], radius[i]);
+        /// Draw minimal enclosing circles
+        cv::circle(thresholdContours_zeroed, center[i], radius[i], color,\
+		   2, cv::LINE_8, 0);
     }
 
-    diffTime = difftime(timer, time(nullptr));
-    std::cout << "Threshold: overall time - " << diffTime << " seconds" << std::endl;
+#ifdef TIME_TEST
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &endTime);
+        elapsedtime = (endTime.tv_sec - startTime.tv_sec) +\
+                      ((endTime.tv_nsec - startTime.tv_nsec) / 1e9);
+        cout << "Threshold: overall time - " << elapsedtime << " seconds" << endl;
+        time_output << elapsedtime << ",";
+#endif // TIME_TEST
 
-    /// Show images
-    cv::namedWindow(thresholdWindowName, cv::WINDOW_FREERATIO);
-    cv::imshow(thresholdWindowName, thresholdOut);
-    cv::namedWindow(boundedWindowName, cv::WINDOW_FREERATIO);
-    cv::imshow(boundedWindowName, starContours);
-    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
 
 
     /// Apply Sobel operator to gray-scaled image
@@ -145,9 +148,12 @@ int main(int argc, char *argv[])
     cv::Mat grad_x, grad_y;
     cv::Mat grad_x_abs, grad_y_abs;
 
-    /// Find horizontal gradient
-    timer = time(nullptr);
+#ifdef TIME_TEST
+        /// Start time
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &startTime);
+#endif // TIME_TEST
 
+    /// Find horizontal gradient
     cv::Sobel(blurredImage, grad_x, dDepth, 1, 0, kernelSize,	\
 	  scale, delta, cv::BORDER_DEFAULT);
     /// Find vertical gradient
@@ -173,43 +179,49 @@ int main(int argc, char *argv[])
                      cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
                      cv::Point(0, 0));
 
-    std::vector <std::vector <cv::Point>> approxCont_Sobel(sobelContours.size());
+    contoursNum = sobelContours.size();
+    vector <vector <cv::Point>> approxCont_Sobel(contoursNum);
+    vector <cv::Point2f> sobelCenter(contoursNum);
+    vector <float> sobelRadius(contoursNum);
     cv::Mat contoursSobelImage_zeroed = cv::Mat::zeros(thresholdSobelOut.size(), CV_8UC3);
-    cv::Mat contoursSobelImage = grayscaledImage;
-    for (i = 0; i < sobelContours.size(); i++)
-    {
-        cv::approxPolyDP(cv::Mat(sobelContours[i]), approxCont_Sobel[i], 3, true);
-    }
-    for (i = 0; i < sobelContours.size(); i++)
+    //cv::Mat contoursSobelImage = grayscaledImage;
+
+    for (i = 0; i < contoursNum; i++)
     {
         cv::Scalar color = cv::Scalar(rng.uniform(0, 255),\
                                       rng.uniform(0, 255),\
                                       rng.uniform(0, 255));
-        cv::drawContours(contoursSobelImage_zeroed, approxCont_Sobel, i,\
-                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),\
-                         0, cv::Point());
-        cv::drawContours(contoursSobelImage, approxCont_Sobel, i,\
-                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),\
-                         0, cv::Point());
+
+        /// Approximate contours
+        cv::approxPolyDP(cv::Mat(sobelContours[i]), approxCont_Sobel[i], 3, true);
+        /*cv::drawContours(contoursSobelImage_zeroed, approxCont_Sobel, i,\
+                         color, 1, cv::LINE_8, vector <cv::Vec4i>(),\
+                         0, cv::Point());*/
+
+        /// Find minimal enclosing circles for approximated contours
+        cv::minEnclosingCircle((cv::Mat) approxCont_Sobel[i], sobelCenter[i], sobelRadius[i]);
+        /// Draw min encl circle
+        cv::circle(contoursSobelImage_zeroed, sobelCenter[i], sobelRadius[i], color,\
+                   2, cv::LINE_8, 0);
     }
 
-    diffTime = difftime(timer, time(nullptr));
-    std::cout << "Sobel operator: overall time - " << diffTime << " seconds" << std::endl;
+#ifdef TIME_TEST
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &endTime);
+        elapsedtime = (endTime.tv_sec - startTime.tv_sec) +\
+                      ((endTime.tv_nsec - startTime.tv_nsec) / 1e9);
+        cout << "Sobel operator: overall time - " << elapsedtime << " seconds" << endl;
+        time_output << elapsedtime << ",";
+#endif // TIME_TEST
 
-    /// Show image
-    cv::namedWindow("Sobel", cv::WINDOW_FREERATIO);
-    cv::imshow("Sobel", sobelResult);
-    cv::namedWindow("Sobel_contours", cv::WINDOW_FREERATIO);
-    cv::imshow("Sobel_contours", contoursSobelImage_zeroed);
-    cv::namedWindow("Sobel_bounded", cv::WINDOW_FREERATIO);
-    cv::imshow("Sobel_bounded", contoursSobelImage);
-    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
 
 
     /// Apply Laplace operator
     cv::Mat laplaceResult, laplaceResult_abs;
 
-    timer = time(nullptr);
+#ifdef TIME_TEST
+        /// Start time
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &startTime);
+#endif // TIME_TEST
 
     cv::Laplacian(blurredImage, laplaceResult, dDepth, kernelSize, scale, delta, cv::BORDER_DEFAULT);
     cv::convertScaleAbs(laplaceResult, laplaceResult_abs, 1, 0);
@@ -221,44 +233,50 @@ int main(int argc, char *argv[])
                      cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
                      cv::Point());
 
-    std::vector <std::vector <cv::Point>> approxCont_Laplace(laplaceContours.size());
+    contoursNum = laplaceContours.size();
+    vector <vector <cv::Point>> approxCont_Laplace(contoursNum);
+    vector <cv::Point2f> laplaceCenter(contoursNum);
+    vector <float> laplaceRadius(contoursNum);
     cv::Mat contoursLaplaceImage_zeroed = cv::Mat::zeros(thresholdLaplaceOut.size(), CV_8UC3);
-    cv::Mat contoursLaplaceImage = grayscaledImage;
-    for (i = 0; i < laplaceContours.size(); i++)
-    {
-        cv::approxPolyDP(cv::Mat(laplaceContours[i]), approxCont_Laplace[i], 3, true);
-    }
-    for (i = 0; i < laplaceContours.size(); i++)
+    //cv::Mat contoursLaplaceImage = grayscaledImage;
+
+    for (i = 0; i < contoursNum; i++)
     {
         cv::Scalar color = cv::Scalar(rng.uniform(0, 255),
                                       rng.uniform(0, 255),
                                       rng.uniform(0, 255));
-        cv::drawContours(contoursLaplaceImage_zeroed, approxCont_Laplace, i,\
-                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
-                         0, cv::Point());
-        cv::drawContours(contoursLaplaceImage, approxCont_Laplace, i,\
-                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
-                         0, cv::Point());
+
+        cv::approxPolyDP(cv::Mat(laplaceContours[i]), approxCont_Laplace[i], 3, true);
+        /*//cv::drawContours(contoursLaplaceImage_zeroed, approxCont_Laplace, i,\
+          //               color, 1, cv::LINE_8, vector <cv::Vec4i>(),\
+            //             0, cv::Point());*/
+
+        cv::minEnclosingCircle((cv::Mat) approxCont_Laplace[i], laplaceCenter[i], laplaceRadius[i]);
+        cv::circle(contoursLaplaceImage_zeroed, laplaceCenter[i], laplaceRadius[i], color,\
+                   2, cv::LINE_8, 0);
     }
 
-    diffTime = difftime(timer, time(nullptr));
-    std::cout << "Laplace operator: overall time - " << diffTime << " seconds" << std::endl;
+#ifdef TIME_TEST
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &endTime);
+        elapsedtime = (endTime.tv_sec - startTime.tv_sec) +\
+                   ((endTime.tv_nsec - startTime.tv_nsec) / 1e9);
+        cout << "Laplace operator: overall time - " << elapsedtime << " seconds" << endl;
+        time_output << elapsedtime << ",";
+#endif // TIME_TEST
 
-    /// Show image
-    cv::namedWindow("Laplacian", cv::WINDOW_FREERATIO);
-    cv::imshow("Laplacian", laplaceResult_abs);
-    cv::namedWindow("Laplace_contours", cv::WINDOW_FREERATIO);
-    cv::imshow("Laplace_contours", contoursLaplaceImage_zeroed);
-    cv::namedWindow("Laplace_bounded", cv::WINDOW_FREERATIO);
-    cv::imshow("Laplace_bounded", contoursLaplaceImage);
-    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
 
 
     /// Apply Canny edge detector
     cv::Mat cannyResult;
 
-    timer = time(nullptr);
-    cv::Canny(blurredImage, cannyResult, 120, 240, kernelSize);
+#ifdef TIME_TEST
+        /// Start time
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &startTime);
+#endif // TIME_TEST
+
+    double t1 = 581;
+    double t2 = 591;
+    cv::Canny(blurredImage, cannyResult, t1, t2, kernelSize);
 
     /// Draw Canny boundaries
     cv::threshold(cannyResult, thresholdCannyOut, thresh, maxThreshold,\
@@ -267,42 +285,86 @@ int main(int argc, char *argv[])
                      cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE,\
                      cv::Point());
 
-    std::vector <std::vector <cv::Point>> approxCont_Canny(cannyContours.size());
+    contoursNum = cannyContours.size();
+    vector <vector <cv::Point>> approxCont_Canny(contoursNum);
+    vector <cv::Point2f> cannyCenter(contoursNum);
+    vector <float> cannyRadius(contoursNum);
     cv::Mat contoursCannyImage_zeroed = cv::Mat::zeros(thresholdCannyOut.size(), CV_8UC3);
-    cv::Mat contoursCannyImage = grayscaledImage;
-    for (i = 0; i < cannyContours.size(); i++)
-    {
-        cv::approxPolyDP(cv::Mat(cannyContours[i]), approxCont_Canny[i], 3, true);
-    }
-    for (i = 0; i < cannyContours.size(); i++)
+    //cv::Mat contoursCannyImage = grayscaledImage;
+
+    for (i = 0; i < contoursNum; i++)
     {
         cv::Scalar color = cv::Scalar(rng.uniform(0, 255),
                                       rng.uniform(0, 255),
                                       rng.uniform(0, 255));
-        cv::drawContours(contoursCannyImage_zeroed, approxCont_Canny, i,\
-                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
-                         0, cv::Point());
-        cv::drawContours(contoursCannyImage, approxCont_Canny, i,\
-                         color, 1, cv::LINE_8, std::vector <cv::Vec4i>(),
-                         0, cv::Point());
+
+        cv::approxPolyDP(cv::Mat(cannyContours[i]), approxCont_Canny[i], 3, true);
+        /*//cv::drawContours(contoursCannyImage_zeroed, approxCont_Canny, i,\
+          //               color, 1, cv::LINE_8, vector <cv::Vec4i>(),
+            //             0, cv::Point());*/
+
+        cv::minEnclosingCircle((cv::Mat) approxCont_Canny[i], cannyCenter[i], cannyRadius[i]);
+        cv::circle(contoursCannyImage_zeroed, cannyCenter[i], cannyRadius[i], color,
+                   2, cv::LINE_8, 0);
     }
 
-    diffTime = difftime(timer, time(nullptr));
-    std::cout << "Canny edge detector: overall time - " << diffTime << " seconds" << std::endl;
+#ifdef TIME_TEST
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &endTime);
+        elapsedtime = (endTime.tv_sec - startTime.tv_sec) +\
+                   ((endTime.tv_nsec - startTime.tv_nsec) / 1e9);
+        cout << "Canny edge detector: overall time - " << elapsedtime << " seconds" << endl;
+        time_output << elapsedtime << endl;
+    }
+
+    time_output.close();
+#endif // TIME_TEST
+
+
 
     /// Show images
+    cv::namedWindow(srcWindowName, cv::WINDOW_FREERATIO);
+    //cv::namedWindow(grayscaledWindowName, cv::WINDOW_FREERATIO);
+    //cv::namedWindow(blurredWindowName, cv::WINDOW_FREERATIO);
+    cv::imshow(srcWindowName, srcImage);
+    //cv::imshow(grayscaledWindowName, grayscaledImage);
+    //cv::imshow(blurredWindowName, blurredImage);
+    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
+    /// Show images
+    cv::namedWindow(thresholdWindowName, cv::WINDOW_FREERATIO);
+    cv::namedWindow(boundedWindowName, cv::WINDOW_FREERATIO);
+    cv::imshow(thresholdWindowName, thresholdOut);
+    cv::imshow(boundedWindowName, thresholdContours_zeroed);
+    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
+    /// Show image
+    cv::namedWindow("Sobel", cv::WINDOW_FREERATIO);
+    cv::namedWindow("Sobel_contours", cv::WINDOW_FREERATIO);
+    cv::imshow("Sobel", sobelResult);
+    cv::imshow("Sobel_contours", contoursSobelImage_zeroed);
+    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
+    /// Show image
+    cv::namedWindow("Laplacian", cv::WINDOW_FREERATIO);
+    cv::namedWindow("Laplace_contours", cv::WINDOW_FREERATIO);
+    cv::imshow("Laplacian", laplaceResult_abs);
+    cv::imshow("Laplace_contours", contoursLaplaceImage_zeroed);
+    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
+    /// Show images
     cv::namedWindow("Canny", cv::WINDOW_FREERATIO);
-    cv::imshow("Canny", cannyResult);
     cv::namedWindow("Canny_contours", cv::WINDOW_FREERATIO);
+    cv::imshow("Canny", cannyResult);
     cv::imshow("Canny_contours", contoursCannyImage_zeroed);
-    cv::namedWindow("Canny_bounded", cv::WINDOW_FREERATIO);
-    cv::imshow("Canny_bounded", contoursCannyImage);
     while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
 
 
     /// Wait for ESC key
     while ((cv::waitKey() & 0xFF) != ASCII_ESCAPE_KEY);
+    cv::destroyAllWindows();
 
 
     return (0);
+}
+
+void greeting (void)
+{
+    cout << "argv[1] - path to image" << endl;
+    cout << "argv[2] - path to results folder (coors, time)" << endl;
 }

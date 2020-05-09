@@ -2,7 +2,10 @@
 #define MAIN_HPP_INCLUDED
 
 #include <iostream>
+#include <cstdio>
 #include <cstdint>
+#include <string>
+#include <fstream>
 #include <ctime>
 #include <cerrno>
 
