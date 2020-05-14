@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdint>
 #include <cerrno>
+#include <thread>
 
 #include "opencv2/core.hpp"
 #include "opencv2/imgproc.hpp"

@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
     srcImage = cv::imread(imageName, cv::IMREAD_COLOR);
     if(srcImage.empty())
     {
-        cout << "An error occurred while open image file: "\
-	          << strerror(errno) << endl;
+        cout << "An error occurred while open image file <" <<\
+        imageName << ">: " << strerror(errno) << endl;
         return (-1);
     }
 
