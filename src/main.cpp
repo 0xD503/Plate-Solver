@@ -3,10 +3,30 @@
 
 //#define TESTING
 //#define TIME_TEST
+//#define CANNY_TEST
 
 
 void greeting (void);
 
+#ifdef CANNY_TEST
+cv::Mat csrc, cdst, cresult;
+int clowt = 0;
+const int clowmax = 1000;
+int ratioCanny = 1;
+const string cthrwin = "Canny_TESTING";
+
+
+static void cannyDetector (int, void *);
+static void cannyDetector (int, void *)
+{
+    cv::Mat result;
+
+    cv::Canny(csrc, cdst, clowt, clowt * ratioCanny);
+    result = cv::Scalar::all(0);
+    csrc.copyTo(result, cdst);
+    cv::imshow(cthrwin, result);
+}
+#endif // CANNY_TEST
 
 using namespace std;
 
@@ -36,8 +56,13 @@ int main(int argc, char *argv[])
     const string blurredWindowName = "Blurred_stars";
     const string grayscaledWindowName = "Grayscaled_stars";
     const string boundedWindowName = "Bounded_stars";
-    const string temp1WindowName = "temp1_stars";
-    const string temp2WindowName = "temp2_stars";
+
+    const string cannyOutWindow = "Canny";
+    const string cannyThresholdWindow = "Canny_threshold";
+    const string cannyContoursWindow = "Canny_contours";
+
+    //const string temp1WindowName = "temp1_stars";
+    //const string temp2WindowName = "temp2_stars";
     cv::Mat srcImage, blurredImage, grayscaledImage;
     cv::Mat resultImage, resultImage1, resultImage2, resultImage3;
     cv::Mat grad;
@@ -274,8 +299,14 @@ int main(int argc, char *argv[])
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &startTime);
 #endif // TIME_TEST
 
-    double t1 = 581;
-    double t2 = 591;
+#ifdef CANNY_TEST
+    cdst.create(srcImage.size(), srcImage.type());
+    blurredImage.copyTo(csrc);
+    cv::namedWindow(cthrwin, cv::WINDOW_FREERATIO);
+    cv::createTrackbar("Min Threshold:", cthrwin, &clowt, clowmax, cannyDetector);
+    cv::createTrackbar("Ratio:", cthrwin, &ratioCanny, 10, cannyDetector);
+#endif // CANNY_TEST
+    int t1 = 178, t2 = 534;
     cv::Canny(blurredImage, cannyResult, t1, t2, kernelSize);
 
     /// Draw Canny boundaries
@@ -296,13 +327,10 @@ int main(int argc, char *argv[])
     for (i = 0; i < contoursNum; i++)
     {
         cv::Scalar color = cv::Scalar(rng.uniform(0, 255),
-                                      rng.uniform(0, 255),
-                                      rng.uniform(0, 255));
+                                      rng.uniform(50, 255),
+                                      rng.uniform(0, 0));
 
         cv::approxPolyDP(cv::Mat(cannyContours[i]), approxCont_Canny[i], 3, true);
-        /*//cv::drawContours(contoursCannyImage_zeroed, approxCont_Canny, i,\
-          //               color, 1, cv::LINE_8, vector <cv::Vec4i>(),
-            //             0, cv::Point());*/
 
         cv::minEnclosingCircle((cv::Mat) approxCont_Canny[i], cannyCenter[i], cannyRadius[i]);
         cv::circle(contoursCannyImage_zeroed, cannyCenter[i], cannyRadius[i], color,
@@ -324,7 +352,6 @@ int main(int argc, char *argv[])
 #endif // TIME_TEST
 
 
-
     /// Show images
     cv::namedWindow(srcWindowName, cv::WINDOW_FREERATIO);
     //cv::namedWindow(grayscaledWindowName, cv::WINDOW_FREERATIO);
@@ -332,30 +359,36 @@ int main(int argc, char *argv[])
     cv::imshow(srcWindowName, srcImage);
     //cv::imshow(grayscaledWindowName, grayscaledImage);
     //cv::imshow(blurredWindowName, blurredImage);
-    while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
+    /*while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
     /// Show images
     cv::namedWindow(thresholdWindowName, cv::WINDOW_FREERATIO);
     cv::namedWindow(boundedWindowName, cv::WINDOW_FREERATIO);
     cv::imshow(thresholdWindowName, thresholdOut);
-    cv::imshow(boundedWindowName, thresholdContours_zeroed);
+    cv::imshow(boundedWindowName, thresholdContours_zeroed);*/
     while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
     /// Show image
     cv::namedWindow("Sobel", cv::WINDOW_FREERATIO);
+    cv::namedWindow("Sobel_threshold", cv::WINDOW_FREERATIO);
     cv::namedWindow("Sobel_contours", cv::WINDOW_FREERATIO);
     cv::imshow("Sobel", sobelResult);
+    cv::imshow("Sobel_threshold", thresholdSobelOut);
     cv::imshow("Sobel_contours", contoursSobelImage_zeroed);
     while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
     /// Show image
     cv::namedWindow("Laplacian", cv::WINDOW_FREERATIO);
+    cv::namedWindow("Laplace_threshold", cv::WINDOW_FREERATIO);
     cv::namedWindow("Laplace_contours", cv::WINDOW_FREERATIO);
     cv::imshow("Laplacian", laplaceResult_abs);
+    cv::imshow("Laplace_threshold", thresholdLaplaceOut);
     cv::imshow("Laplace_contours", contoursLaplaceImage_zeroed);
     while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
     /// Show images
-    cv::namedWindow("Canny", cv::WINDOW_FREERATIO);
-    cv::namedWindow("Canny_contours", cv::WINDOW_FREERATIO);
-    cv::imshow("Canny", cannyResult);
-    cv::imshow("Canny_contours", contoursCannyImage_zeroed);
+    cv::namedWindow(cannyOutWindow, cv::WINDOW_FREERATIO);
+    cv::namedWindow(cannyThresholdWindow, cv::WINDOW_FREERATIO);
+    cv::namedWindow(cannyContoursWindow, cv::WINDOW_FREERATIO);
+    cv::imshow(cannyOutWindow, cannyResult);
+    cv::imshow(cannyThresholdWindow, thresholdCannyOut);
+    cv::imshow(cannyContoursWindow, contoursCannyImage_zeroed);
     while ((cv::waitKey() & 0xFF) != ASCII_SPACE_KEY);
 
 
@@ -366,6 +399,7 @@ int main(int argc, char *argv[])
 
     return (0);
 }
+
 
 void greeting (void)
 {
