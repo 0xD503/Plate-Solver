@@ -1,6 +1,5 @@
 
 ##  Installation prequisitions
-#echo 'Installation...'
 echo 'Creating the neccesary directories...'
 mkdir ./obj
 mkdir ./obj/Debug
@@ -13,11 +12,11 @@ echo 'Compiling...'
 make
 
 ##  Installation
-echo 'Installing'
+#echo 'Installing'
 
 
 ##  Creating run.sh file
-#'./bin/Debug/Plate-Solver\n' > ./run.sh
+'./bin/Debug/Plate-Solver\n' > ./run.sh
 
 ##
 echo 'Installation status: SUCCESS'
